@@ -115,6 +115,15 @@ select,
 textarea { border-radius: var(--soft-radius-small) !important; }
 .rounded-lg { border-radius: var(--soft-radius-small) !important; }
 .rounded-xl { border-radius: var(--soft-radius) !important; }
+.metric-bar {
+  width: 0 !important;
+  border-radius: 999px;
+  transition: width 1.25s cubic-bezier(.22, 1, .36, 1);
+}
+.metric-bar.is-visible { width: var(--target-width) !important; }
+@media (prefers-reduced-motion: reduce) {
+  .metric-bar { transition: none; }
+}
 @media (max-width: 767px) {
   html, body { max-width: 100%; overflow-x: hidden; }
   .px-margin-desktop { padding-left: 20px !important; padding-right: 20px !important; }
@@ -745,6 +754,58 @@ window.addEventListener('message', event => {
   if (location.hash === '#byd-seal') history.back();
   else hideBydSealPage();
 });
+
+const metricBars = document.querySelectorAll('section .bg-silver-metallic > .bg-primary');
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function animateMetricValue(element, finalText) {
+  const match = finalText.match(/[\d.]+/);
+  if (!match || reduceMotion) {
+    element.textContent = finalText;
+    return;
+  }
+
+  const target = Number(match[0]);
+  const decimals = (match[0].split('.')[1] || '').length;
+  const prefix = finalText.slice(0, match.index);
+  const suffix = finalText.slice(match.index + match[0].length);
+  const duration = 1250;
+  const startedAt = performance.now();
+
+  function update(now) {
+    const progress = Math.min((now - startedAt) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    element.textContent = `${prefix}${(target * eased).toFixed(decimals)}${suffix}`;
+    if (progress < 1) requestAnimationFrame(update);
+  }
+
+  requestAnimationFrame(update);
+}
+
+metricBars.forEach(bar => {
+  const widthClass = [...bar.classList].find(name => name.startsWith('w-['));
+  const targetWidth = widthClass?.match(/[\d.]+%/)?.[0] || '100%';
+  const valueElement = bar.parentElement.previousElementSibling?.querySelector('span:last-child');
+  bar.classList.add('metric-bar');
+  bar.style.setProperty('--target-width', targetWidth);
+  if (valueElement) {
+    valueElement.dataset.finalValue = valueElement.textContent.trim();
+    valueElement.textContent = valueElement.dataset.finalValue.replace(/[\d.]+/, '0');
+  }
+});
+
+const metricObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    const bar = entry.target;
+    bar.classList.add('is-visible');
+    const valueElement = bar.parentElement.previousElementSibling?.querySelector('span:last-child');
+    if (valueElement?.dataset.finalValue) animateMetricValue(valueElement, valueElement.dataset.finalValue);
+    metricObserver.unobserve(bar);
+  });
+}, { threshold: 0.35 });
+
+metricBars.forEach(bar => metricObserver.observe(bar));
 
 document.getElementById('consultation-form')?.addEventListener('submit', function (event) {
   event.preventDefault();
