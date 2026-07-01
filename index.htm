@@ -96,6 +96,25 @@
         }
     }catch(_e){}</script><title>BYD Jogja | Promo Mobil Listrik 2026</title>
 <style>
+:root { --soft-radius: 10px; --soft-radius-small: 7px; }
+#promos + section .grid > div,
+#lineup .grid > div,
+section .bg-white.shadow-sm,
+section .bg-white[class*="border"],
+section .bg-surface-container-low,
+section .bg-surface-container-lowest,
+section .bg-surface-container,
+section .bg-surface-container-high { border-radius: var(--soft-radius) !important; overflow: hidden; }
+section img,
+section [style*="background-image"] { border-radius: var(--soft-radius-small); }
+button,
+a.bg-primary,
+a.bg-whatsapp-brand,
+input,
+select,
+textarea { border-radius: var(--soft-radius-small) !important; }
+.rounded-lg { border-radius: var(--soft-radius-small) !important; }
+.rounded-xl { border-radius: var(--soft-radius) !important; }
 @media (max-width: 767px) {
   html, body { max-width: 100%; overflow-x: hidden; }
   .px-margin-desktop { padding-left: 20px !important; padding-right: 20px !important; }
@@ -631,6 +650,22 @@ function showBydSealPage(addHistory = true) {
   const bytes = Uint8Array.from(atob(BYD_SEAL_PAGE_BASE64), character => character.charCodeAt(0));
   let detailPage = new TextDecoder().decode(bytes);
   const detailMobileStyle = `<style>
+    :root { --soft-radius: 10px; --soft-radius-small: 7px; }
+    section .grid > div[class*="bg-"],
+    section div[class*="border"][class*="bg-"],
+    section .bg-surface-container,
+    section .bg-surface-container-high,
+    section .bg-surface-container-low,
+    section .bg-surface-container-lowest,
+    table { border-radius: var(--soft-radius) !important; overflow: hidden; }
+    section img { border-radius: var(--soft-radius-small); }
+    button,
+    a[class*="bg-"],
+    input,
+    select,
+    textarea { border-radius: var(--soft-radius-small) !important; }
+    .rounded-lg { border-radius: var(--soft-radius-small) !important; }
+    .rounded-xl { border-radius: var(--soft-radius) !important; }
     @media (max-width: 767px) {
       html, body { max-width: 100%; overflow-x: hidden; }
       .px-margin-desktop { padding-left: 20px !important; padding-right: 20px !important; }
